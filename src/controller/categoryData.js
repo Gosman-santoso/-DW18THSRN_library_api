@@ -47,7 +47,11 @@ exports.detailCategory = async(req, res) => {
 
 exports.addCategory = async(req, res) => {
     try {
-        const create = await Category.create(req.body);
+        const create = await Category.create(req.body, {
+            attributes: {
+                exclude: ["createdAt", "updatedAt"]
+            }
+        });
         res.send({
             message: "Data succsesfully created",
             data: {
@@ -69,6 +73,9 @@ exports.editCategory = async(req, res) => {
         const edit = await Category.update(req.body, {
             where: {
                 id
+            },
+            attributes: {
+                exclude: ["createdAt", "updatedAt"]
             }
         });
         res.send({
@@ -91,6 +98,9 @@ exports.deleteCategory = async(req, res) => {
         const dataDeleted = await Category.findOne({
             where: {
                 id
+            },
+            attributes: {
+                exclude: ["createdAt", "updatedAt"]
             }
         });
         await Category.destroy({
