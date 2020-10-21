@@ -30,7 +30,9 @@ module.exports = {
                 references: {
                     model: "Users",
                     as: "id"
-                }
+                },
+                onUpdate: "CASCADE",
+                onDelete: "NO ACTION"
             },
             pages: {
                 type: Sequelize.STRING
@@ -42,6 +44,9 @@ module.exports = {
                 type: Sequelize.TEXT
             },
             file: {
+                type: Sequelize.STRING
+            },
+            thumbnail: {
                 type: Sequelize.STRING
             },
             status: {

@@ -20,6 +20,9 @@ module.exports = (sequelize, DataTypes) => {
                     name: "userId"
                 }
             });
+            Book.hasMany(models.Library, {
+                as: "library"
+            });
         }
     }
     Book.init({
@@ -31,6 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         ISBN: DataTypes.STRING,
         aboutBook: DataTypes.TEXT,
         file: DataTypes.STRING,
+        thumbnail: DataTypes.STRING,
         status: DataTypes.STRING
     }, {
         sequelize,

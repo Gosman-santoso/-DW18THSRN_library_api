@@ -1,14 +1,30 @@
 const router = express.Router();
 
+const { authenticated: auth } = require("../middleware/authentication");
+const { register, login, checkAuth } = require("./../controller/auth");
+
 const {
+    getUsers,
+    getDetailUser,
+    editUser,
+    deleteUser
+} = require("./../controller/dataUser");
+
+const {
+    getLibrary,
+    detailBookmark,
+    addLibrary,
+    removeBookmark
+} = require("./../controller/dataLibrary");
+
+const {
+    getAdmBooks,
     getBooks,
     getDetailBook,
     deleteBook,
     addBook,
     editBook
 } = require("./../controller/dataBook");
-
-const { getUsers, deleteUser } = require("./../controller/dataUser");
 
 const {
     getCategory,
@@ -19,21 +35,35 @@ const {
 } = require("./../controller/dataCategory");
 
 // Book
-router.get("/books", getBooks);
-router.get("/book/:id", getDetailBook);
-router.post("/books", addBook);
-router.patch("/book/:id", editBook);
-router.delete("/book/:id", deleteBook);
+router.get("/booksAdm", auth, getAdmBooks);
+router.get("/books", auth, getBooks);
+router.get("/book/:id", auth, getDetailBook);
+router.post("/books", auth, addBook);
+router.patch("/book/:id", auth, editBook);
+router.delete("/book/:id", auth, deleteBook);
 
 // User
-router.get("/users", getUsers);
-router.delete("/book/:id", deleteUser);
+router.get("/users", auth, getUsers);
+router.get("/user/:id", auth, getDetailUser);
+router.patch("/user/:id", auth, editUser);
+router.delete("/user/:id", auth, deleteUser);
+
+//Library
+router.get("/libraries", auth, getLibrary);
+router.get("/library/:id", auth, detailBookmark);
+router.post("/libraries", auth, addLibrary);
+router.delete("/library/:id", auth, removeBookmark);
 
 // Category
-router.get("/categories", getCategory);
-router.get("/category/:id", detailCategory);
-router.post("/categories", addCategory);
-router.patch("/category/:id", editCategory);
-router.delete("/category/:id", deleteCategory);
+router.get("/categories", auth, getCategory);
+router.get("/category/:id", auth, detailCategory);
+router.post("/categories", auth, addCategory);
+router.patch("/category/:id", auth, editCategory);
+router.delete("/category/:id", auth, deleteCategory);
+
+// Auth Login & Register
+router.post("/register", register);
+router.post("/login", login);
+router.get("/auth", auth, checkAuth);
 
 module.exports = router;

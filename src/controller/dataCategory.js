@@ -1,15 +1,22 @@
-const { Category } = require("./../../models");
+const { Category, Book } = require("../../models");
 
 exports.getCategory = async(req, res) => {
     try {
         const categories = await Category.findAll({
+            include: {
+                model: Book,
+                as: "book",
+                attributes: {
+                    exclude: ["createdAt", "updatedAt"]
+                }
+            },
             attributes: {
                 exclude: ["createdAt", "updatedAt"]
             }
         });
 
         res.send({
-            message: "Response Succses",
+            message: "Category Succsesfully Loaded",
             data: { categories }
         });
     } catch (err) {
@@ -26,6 +33,13 @@ exports.detailCategory = async(req, res) => {
         const category = await Category.findOne({
             where: {
                 id
+            },
+            include: {
+                model: Book,
+                as: "book",
+                attributes: {
+                    exclude: ["createdAt", "updatedAt"]
+                }
             },
             attributes: {
                 exclude: ["createdAt", "updatedAt"]
@@ -109,6 +123,7 @@ exports.deleteCategory = async(req, res) => {
             }
         });
         res.send({
+            message: `Data with id ${id} has been deleted`,
             data: {
                 Category: dataDeleted
             }
