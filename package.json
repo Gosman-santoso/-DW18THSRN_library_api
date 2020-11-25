@@ -23,9 +23,7 @@
         "mysql2": "^2.2.5",
         "path": "^0.12.7",
         "pg": "^8.5.1",
-        "sequelize": "^6.3.5"
-    },
-    "devDependencies": {
+        "sequelize": "^6.3.5",
         "sequelize-cli": "^6.2.0"
     }
 }
