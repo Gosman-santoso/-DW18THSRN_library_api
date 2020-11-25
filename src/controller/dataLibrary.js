@@ -47,10 +47,11 @@ exports.getLibrary = async(req, res) => {
 
 exports.detailBookmark = async(req, res) => {
     try {
-        const { id } = req.params;
+        const { bookId, userId } = req.params;
         const detail = await Library.findOne({
             where: {
-                id
+                bookId,
+                userId
             },
             include: [{
                     model: Book,
@@ -73,7 +74,7 @@ exports.detailBookmark = async(req, res) => {
         });
 
         res.send({
-            message: `Bookmark with id ${id}`,
+            message: `Bookmark with id ${bookId}`,
             data: {
                 library: detail
             }
@@ -97,7 +98,10 @@ exports.addLibrary = async(req, res) => {
         res.send({
             message: "Data Succsesfully Created",
             data: {
-                library: addBookmarks
+                library: {
+                    bookId,
+                    userId
+                }
             }
         });
     } catch (err) {
@@ -110,25 +114,17 @@ exports.addLibrary = async(req, res) => {
 
 exports.removeBookmark = async(req, res) => {
     try {
-        const { id } = req.params;
-        const remove = await Library.findOne({
-            where: {
-                id
-            },
-            attributes: {
-                exclude: ["createdAt", "updatedAt", "BookId", "UserId"]
-            }
-        });
+        const { bookId, userId } = req.params;
         await Library.destroy({
             where: {
-                id
+                bookId,
+                userId
             }
         });
-
         res.send({
             message: `Bookmark removed`,
             data: {
-                library: remove
+                library: `Library with user id ${userId} & literature id ${bookId} removed`
             }
         });
     } catch (err) {

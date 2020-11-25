@@ -11,31 +11,6 @@ const key = process.env.JWT_KEY;
 
 const joi = require("@hapi/joi");
 
-// exports.checkAuth = async(req, res) => {
-//     try {
-//         const user = await User.findOne({
-//             where: {
-//                 id: req.user.id
-//             },
-//             attributes: {
-//                 exclude: ["createdAt", "updatedAt", "password"]
-//             }
-//         });
-
-//         res.send({
-//             mmessage: "User Valid",
-//             data: {
-//                 user
-//             }
-//         });
-//     } catch (err) {
-//         console.log(err);
-//         res.status(500).send({
-//             message: "Server Error"
-//         });
-//     }
-// };
-
 exports.checkAuth = async(req, res) => {
     try {
         const user = await User.findOne({

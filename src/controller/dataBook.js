@@ -1,6 +1,95 @@
 const { User, Category, Book } = require("./../../models");
+const { Op } = require("sequelize");
 
 const joi = require("@hapi/joi");
+
+exports.searchBook = async(req, res) => {
+    try {
+        const { title } = req.params;
+        const search = await Book.findAll({
+            where: {
+                status: "Approved",
+                title: {
+                    [Op.like]: title + "%"
+                }
+            }
+        });
+
+        res.send({
+            message: "Data Succsesfully Loaded",
+            data: {
+                search
+            }
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send({
+            message: "Server error"
+        });
+    }
+};
+
+exports.searchBookDate = async(req, res) => {
+    let title = req.query.title;
+    let public_year = req.query.public_year;
+    try {
+        if (public_year) {
+            const book = await Book.findAll({
+                include: [{
+                    model: User,
+                    as: "user_id",
+                    attributes: {
+                        exclude: ["password", "createdAt", "updatedAt"]
+                    }
+                }],
+                attributes: {
+                    exclude: ["UserId", "createdAt", "updatedAt"]
+                },
+                where: {
+                    status: "Approved",
+                    title: {
+                        [Op.like]: title + "%"
+                    },
+                    publication_date: {
+                        [Op.gte]: public_year
+                    }
+                },
+                order: [
+                    ["publication_date", "DESC"]
+                ]
+            });
+            res.send({
+                message: `title like ${title} in ${public_year} was found`,
+                book
+            });
+        } else {
+            const book = await Book.findAll({
+                include: [{
+                    model: User,
+                    as: "user_id",
+                    attributes: {
+                        exclude: ["createdAt", "updatedAt"]
+                    }
+                }],
+                attributes: {
+                    exclude: ["UserId", "createdAt", "updatedAt"]
+                },
+                where: {
+                    status: "Approved",
+                    title: {
+                        [Op.like]: title + "%"
+                    }
+                }
+            });
+            res.send({
+                message: `${title} title found`,
+                book
+            });
+        }
+    } catch (err) {
+        showError(err);
+    }
+};
 
 exports.getBooks = async(req, res) => {
     try {
@@ -10,7 +99,7 @@ exports.getBooks = async(req, res) => {
 
         const books = await Book.findAll({
             where: {
-                status : "Approved"
+                status: "Approved"
             },
             include: [{
                     model: Category,
@@ -60,7 +149,7 @@ exports.getAdmBooks = async(req, res) => {
         const status = req.body.status;
 
         const books = await Book.findAll({
-            
+
             include: [{
                     model: Category,
                     as: "category_id",
@@ -105,7 +194,7 @@ exports.getAdmBooks = async(req, res) => {
 exports.getDetailBook = async(req, res) => {
     try {
         const { id } = req.params;
-        const detail = await Book.findOne({
+        const book = await Book.findOne({
             where: {
                 id
             },
@@ -139,7 +228,7 @@ exports.getDetailBook = async(req, res) => {
         res.send({
             message: `Book with id ${id} found`,
             data: {
-                Book: detail
+                book
             }
         });
     } catch (err) {
@@ -152,14 +241,6 @@ exports.getDetailBook = async(req, res) => {
 
 exports.addBook = async(req, res) => {
     try {
-        // const createBook = await Book.create(req.body);
-        // res.send({
-        //     message: "Data succsesfully created",
-        //     data: {
-        //         Book: createBook
-        //     }
-        // });
-
         const {
             title,
             publication,
@@ -203,10 +284,6 @@ exports.addBook = async(req, res) => {
                 .string()
                 .min(5)
                 .required(),
-            thumbnail: joi
-                .string()
-                .min(5)
-                .required()
         });
 
         const { error } = schema.validate(req.body);
@@ -216,6 +293,18 @@ exports.addBook = async(req, res) => {
                 error: {
                     message: error.details[0].message
                 }
+            });
+        }
+
+        const checkISBN = await Literature.findOne({
+            where: {
+                ISBN
+            }
+        });
+
+        if (checkISBN) {
+            return res.status(400).send({
+                message: "ISBN already exists"
             });
         }
 
@@ -234,7 +323,7 @@ exports.addBook = async(req, res) => {
         res.send({
             message: "Data succsesfully created",
             data: {
-                Book: createBook
+                createBook
             }
         });
     } catch (err) {
@@ -248,22 +337,43 @@ exports.addBook = async(req, res) => {
 exports.editBook = async(req, res) => {
     try {
         const { id } = req.params;
-        const edit = await Book.update(req.body, {
+        const [edit] = await Book.update(req.body, {
             where: {
                 id
             }
         });
 
-        res.send({
-            message: "Data has been updated",
-            data: {
-                Book: req.body
+        if (!edit)
+            return res.status(404).send({
+                message: "Book not found!"
+            });
+
+        const data = await Book.findOne({
+            where: {
+                id
+            },
+            include: {
+                model: User,
+                as: "user_id",
+                attributes: { exclude: ["password", "createdAt", "updatedAt"] }
+            },
+
+            attributes: {
+                exclude: ["createdAt", "updatedAt", "categoryId", "userId"]
             }
         });
-    } catch (err) {
-        console.log(err);
+
+        res.send({
+            status: "success",
+            message: `Book updated successfully`,
+            data
+        });
+    } catch (error) {
+        console.log(error);
         res.status(500).send({
-            message: "Server Error"
+            status: "error",
+            message: "Internal Server Error",
+            code: 500
         });
     }
 };

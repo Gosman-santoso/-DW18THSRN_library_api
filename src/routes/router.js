@@ -3,6 +3,8 @@ const router = express.Router();
 const { authenticated: auth } = require("../middleware/authentication");
 const { register, login, checkAuth } = require("./../controller/auth");
 
+const { upload } = require("../middleware/uploadFile");
+
 const {
     getUsers,
     getDetailUser,
@@ -38,7 +40,7 @@ const {
 router.get("/booksAdm", auth, getAdmBooks);
 router.get("/books", auth, getBooks);
 router.get("/book/:id", auth, getDetailBook);
-router.post("/books", auth, addBook);
+router.post("/books", auth, upload("book"), addBook);
 router.patch("/book/:id", auth, editBook);
 router.delete("/book/:id", auth, deleteBook);
 
@@ -50,9 +52,9 @@ router.delete("/user/:id", auth, deleteUser);
 
 //Library
 router.get("/libraries", auth, getLibrary);
-router.get("/library/:id", auth, detailBookmark);
+router.get("/library/:bookId/:userId", auth, detailBookmark);
 router.post("/libraries", auth, addLibrary);
-router.delete("/library/:id", auth, removeBookmark);
+router.delete("/library/:book/:userId", auth, removeBookmark);
 
 // Category
 router.get("/categories", auth, getCategory);
