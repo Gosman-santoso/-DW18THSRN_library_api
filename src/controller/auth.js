@@ -1,7 +1,7 @@
 const { User } = require("../../models");
 
 // Hash data
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 // Make token for auth
 const jwt = require("jsonwebtoken");
